@@ -1,20 +1,11 @@
-import pytest
 import sqlite3
-import pyotp
 import time
-from main import criar_banco, criar_usuario, login, gerar_codigos_reserva
 
+import pyotp
+import pytest
 
-def pytest_configure(config):
-    config.addinivalue_line(
-        "markers", "otp: mark test for OTP functionality"
-    )
-    config.addinivalue_line(
-        "markers", "database: mark test for database constraints"
-    )
-    config.addinivalue_line(
-        "markers", "security: mark test for security aspects"
-    )
+from main import criar_banco, criar_usuario, login
+
 
 @pytest.fixture
 def db_connection():
@@ -136,4 +127,3 @@ class TestSecurity:
         assert hash != password
         # Verify hash starts with expected algorithm identifier
         assert hash.startswith("scrypt:32768") or hash.startswith("pbkdf2:sha256")
-
