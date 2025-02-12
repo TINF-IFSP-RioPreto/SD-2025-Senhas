@@ -6,13 +6,13 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 
 def gerar_senha_aleatoria(tamanho: int = 10,
-                          maisculas: bool = True,
+                          maiusculas: bool = True,
                           minusculas: bool = True,
                           digitos: bool = True,
                           simbolos: bool = True,
                           remove_confusos: bool = True) -> Optional[str]:
     categorias = {
-        'maisculas' : 'ABCDEFGHJKLMNPQRSTUVWXYZ' if remove_confusos else string.ascii_uppercase,
+        'maiusculas': 'ABCDEFGHJKLMNPQRSTUVWXYZ' if remove_confusos else string.ascii_uppercase,
         'minusculas': 'abcdefghjkmnpqrstuvwxyz' if remove_confusos else string.ascii_lowercase,
         'digitos'   : '23456789' if remove_confusos else string.digits,
         'simbolos'  : string.punctuation
@@ -61,13 +61,13 @@ def gerar_senha_frase(num_palavras: int = 4,
 
 def validar_complexidade_senha(senha: str = None,
                                tamanho: int = 8,
-                               maisculas: bool = True,
+                               maiusculas: bool = True,
                                minusculas: bool = True,
                                digitos: bool = True,
                                simbolos: bool = True) -> bool:
     valida = True
     valida = valida and (len(senha) >= tamanho)
-    if maisculas:
+    if maiusculas:
         valida = valida and (re.search(r'[A-Z]', senha) is not None)
     if minusculas:
         valida = valida and (re.search(r'[a-z]', senha) is not None)
@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
     teste = validar_complexidade_senha(senha,
                                        tamanho=t,
-                                       maisculas=True if ma == 'S' else False,
+                                       maiusculas=True if ma == 'S' else False,
                                        minusculas=True if mi == 'S' else False,
                                        digitos=True if di == 'S' else False,
                                        simbolos=True if si == 'S' else False)

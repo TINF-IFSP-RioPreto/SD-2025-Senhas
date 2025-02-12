@@ -1,32 +1,28 @@
+from string import ascii_lowercase, ascii_uppercase, digits, punctuation
+from unittest.mock import mock_open, patch
+
 import pytest
-from string import ascii_uppercase, ascii_lowercase, digits, punctuation
-from unittest.mock import patch, mock_open
 
 from main import gerar_senha_aleatoria, gerar_senha_frase, validar_complexidade_senha
 
-def pytest_configure(config):
-    config.addinivalue_line(
-        "markers", "caracteresconfusos: mark test for removing confusing characters"
-    )
-    config.addinivalue_line(
-        "markers", "error: mark test for invalid cases"
-    )
 
 @pytest.fixture
 def valid_test_passwords():
     """Fixture providing a set of valid passwords for different scenarios"""
     return {
         'all_categories': 'Testando123#$',
-        'no_symbols': 'Testando1234',
-        'no_digits': 'Testando#$ab',
-        'minimal': 'Aa1#',
-        'long': 'TestTestando123#$'
+        'no_symbols'    : 'Testando1234',
+        'no_digits'     : 'Testando#$ab',
+        'minimal'       : 'Aa1#',
+        'long'          : 'TestTestando123#$'
     }
+
 
 @pytest.fixture
 def mock_palavra_list():
     """Fixture providing mock word list data"""
     return "palavra1\npalavra2\npalavra3\npalavra4\npalavra5"
+
 
 class TestGerarSenhaAleatoria:
     @pytest.mark.parametrize("tamanho", [8, 10, 15, 20])
@@ -35,16 +31,16 @@ class TestGerarSenhaAleatoria:
         assert len(senha) == tamanho
 
     @pytest.mark.parametrize("config", [
-        {'maisculas': True, 'minusculas': False, 'digitos': False, 'simbolos': False},
-        {'maisculas': False, 'minusculas': True, 'digitos': False, 'simbolos': False},
-        {'maisculas': False, 'minusculas': False, 'digitos': True, 'simbolos': False},
-        {'maisculas': False, 'minusculas': False, 'digitos': False, 'simbolos': True}
+        {'maiusculas': True, 'minusculas': False, 'digitos': False, 'simbolos': False},
+        {'maiusculas': False, 'minusculas': True, 'digitos': False, 'simbolos': False},
+        {'maiusculas': False, 'minusculas': False, 'digitos': True, 'simbolos': False},
+        {'maiusculas': False, 'minusculas': False, 'digitos': False, 'simbolos': True}
     ])
     def test_categorias_individuais(self, config):
         senha = gerar_senha_aleatoria(**config)
         for category, enabled in config.items():
             if enabled:
-                if category == 'maisculas':
+                if category == 'maiusculas':
                     assert any(c in ascii_uppercase for c in senha)
                 elif category == 'minusculas':
                     assert any(c in ascii_lowercase for c in senha)
@@ -61,8 +57,9 @@ class TestGerarSenhaAleatoria:
     @pytest.mark.error
     def test_casos_invalidos(self):
         assert gerar_senha_aleatoria(tamanho=2) is None
-        assert gerar_senha_aleatoria(maisculas=False, minusculas=False,
+        assert gerar_senha_aleatoria(maiusculas=False, minusculas=False,
                                      digitos=False, simbolos=False) is None
+
 
 class TestGerarSenhaFrase:
     @pytest.mark.parametrize("num_palavras", [2, 3, 4, 5])
