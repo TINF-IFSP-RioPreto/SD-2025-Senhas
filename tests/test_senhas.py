@@ -3,7 +3,7 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from main import gerar_senha_aleatoria, gerar_senha_frase, validar_complexidade_senha
+from src.senhas import gerar_senha_aleatoria, gerar_senha_frase, validar_complexidade_senha
 
 
 @pytest.fixture

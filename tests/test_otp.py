@@ -4,7 +4,7 @@ import time
 import pyotp
 import pytest
 
-from main import criar_banco, criar_usuario, login
+from src.otp import criar_banco, criar_usuario, login
 
 
 @pytest.fixture
