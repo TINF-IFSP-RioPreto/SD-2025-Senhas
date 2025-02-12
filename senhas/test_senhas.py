@@ -4,6 +4,14 @@ from unittest.mock import patch, mock_open
 
 from main import gerar_senha_aleatoria, gerar_senha_frase, validar_complexidade_senha
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "caracteresconfusos: mark test for removing confusing characters"
+    )
+    config.addinivalue_line(
+        "markers", "error: mark test for invalid cases"
+    )
+
 @pytest.fixture
 def valid_test_passwords():
     """Fixture providing a set of valid passwords for different scenarios"""

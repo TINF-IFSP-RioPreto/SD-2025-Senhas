@@ -1,10 +1,20 @@
 import pytest
 import sqlite3
 import pyotp
-from werkzeug.security import check_password_hash
 import time
 from main import criar_banco, criar_usuario, login, gerar_codigos_reserva
 
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "otp: mark test for OTP functionality"
+    )
+    config.addinivalue_line(
+        "markers", "database: mark test for database constraints"
+    )
+    config.addinivalue_line(
+        "markers", "security: mark test for security aspects"
+    )
 
 @pytest.fixture
 def db_connection():
