@@ -29,6 +29,12 @@ def verifica_token_jwt(text: str = None,
     except jwt.ExpiredSignatureError as e:
         claims.update({'reason': "expired"})
 
+    except jwt.ImmatureSignatureError as e:
+        claims.update({'reason': "immature"})
+
+    except jwt.InvalidSignatureError as e:
+        claims.update({'reason': "invalid_signature"})
+
     except jwt.InvalidTokenError as e:
         claims.update({'reason': "invalid"})
 
@@ -43,7 +49,6 @@ def criar_token_jwt(sub: Any,
                     action: str = None,
                     expires_in: int = 600,
                     extra_data: Optional[Dict[str, str]] = None) -> Optional[str]:
-
     if sign_key is None or sub is None:
         return None  # Poderia gerar uma chave
 
