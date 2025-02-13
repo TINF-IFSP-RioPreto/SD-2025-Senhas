@@ -1,6 +1,6 @@
 werkzeug~=3.1
 pyotp~=2.9
-joserfc~=1.0
+PyJWT~=2.8
 requests~=2.32
 pillow~=11.1
-joserfc~=1.0
+pytest~=8.3
