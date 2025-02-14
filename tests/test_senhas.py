@@ -1,5 +1,5 @@
+from pathlib import Path
 from string import ascii_lowercase, ascii_uppercase, digits, punctuation
-from unittest.mock import mock_open, patch
 
 import pytest
 
@@ -16,12 +16,6 @@ def valid_test_passwords():
         'minimal'       : 'Aa1#',
         'long'          : 'TestTestando123#$'
     }
-
-
-@pytest.fixture
-def mock_palavra_list():
-    """Fixture providing mock word list data"""
-    return "palavra1\npalavra2\npalavra3\npalavra4\npalavra5"
 
 
 class TestGerarSenhaAleatoria:
@@ -63,16 +57,33 @@ class TestGerarSenhaAleatoria:
 
 class TestGerarSenhaFrase:
     @pytest.mark.parametrize("num_palavras", [2, 3, 4, 5])
-    def test_diferentes_numeros_palavras(self, num_palavras, mock_palavra_list):
-        with patch("builtins.open", mock_open(read_data=mock_palavra_list)):
-            senha = gerar_senha_frase(num_palavras=num_palavras)
-            assert len(senha.split('-')) == num_palavras
+    def test_diferentes_numeros_palavras(self, num_palavras):
+        senha = gerar_senha_frase(num_palavras=num_palavras,
+                                  arquivo=Path("palavras.lst"))
+        assert len(senha.split('-')) == num_palavras
+
+    def test_zero_palavras(self):
+        senha = gerar_senha_frase(num_palavras=0,
+                                  arquivo=Path("palavras.lst"))
+        assert senha is None
+
+    def test_lista_palvras_nao_existe(self):
+        senha = gerar_senha_frase(num_palavras=2,
+                                  arquivo=Path("error.lst"))
+        assert senha is None
+
+    def test_palavra_maiuscula(self):
+        senha = gerar_senha_frase(num_palavras=3,
+                                  arquivo=Path("palavras.lst"),
+                                  maiuscula=True)
+        c = any(char.isupper() for char in senha)
+        assert c
 
     @pytest.mark.parametrize("separador", ['-', '_', '.', ' '])
-    def test_diferentes_separadores(self, separador, mock_palavra_list):
-        with patch("builtins.open", mock_open(read_data=mock_palavra_list)):
-            senha = gerar_senha_frase(separador=separador)
-            assert separador in senha
+    def test_diferentes_separadores(self, separador):
+        senha = gerar_senha_frase(separador=separador,
+                                  arquivo=Path("palavras.lst"))
+        assert separador in senha
 
 
 class TestValidarComplexidadeSenha:

@@ -47,9 +47,8 @@ def criar_banco(filename: str = 'usuarios.db') -> sqlite3.Connection:
 def criar_usuario(conn: sqlite3.Connection,
                   email: str = None,
                   senha: str = None,
-                  use_otp: bool = False) -> Optional[Tuple[Optional[str],
-Optional[str],
-Optional[List[str]]]]:
+                  use_otp: bool = False) -> \
+                                Optional[Tuple[Optional[str], Optional[str], Optional[List[str]]]]:
     """
         Cria um novo usuário na base de dados.
 
@@ -64,7 +63,7 @@ Optional[List[str]]]]:
             conn (sqlite3.Connection): Conexão com o banco de dados SQLite.
             email (str): Email do usuário.
             senha (str): Senha em texto plano.
-            use_otp (bool): O usuário vai utilizar 2FA (padrão False)
+            use_otp (bool): O usuário vai utilizar 2FA (default: False)
 
         Returns:
             None se o usuário já existir; Tuple[str, str, List[str]] contendo segredo OTP, URI
@@ -218,7 +217,6 @@ def gerar_codigos_reserva(conn: sqlite3.Connection,
     if not check_password_hash(senha_hash, senha):
         return None  # Invalid password
 
-    #
     if not use_otp:
         return None
 

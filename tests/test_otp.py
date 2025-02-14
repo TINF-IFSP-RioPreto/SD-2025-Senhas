@@ -4,12 +4,12 @@ import time
 import pyotp
 import pytest
 
-from src.otp import criar_banco, criar_usuario, login
+from src.otp import criar_banco, criar_usuario, gerar_codigos_reserva, login
 
 
 @pytest.fixture
 def db_connection():
-    """Fixture to provide a fresh database connection for each test"""
+    """Fixture para criar uma conexão nova de banco de dados para cada teste"""
     conn = criar_banco('teste.db')
     yield conn
     conn.close()
@@ -17,7 +17,7 @@ def db_connection():
 
 @pytest.fixture
 def sample_user(db_connection):
-    """Fixture to create a sample user with OTP enabled"""
+    """Fixture para criar um usuário com OTP ativado"""
     email = "test@example.com"
     password = "password123"
     otp_secret, _, backup_codes = criar_usuario(db_connection, email, password, use_otp=True)
@@ -49,6 +49,48 @@ def test_criar_usuario_invalid_password(db_connection, invalid_password):
     """Test user creation with various invalid password formats"""
     usuario = criar_usuario(db_connection, "test@example.com", invalid_password)
     assert usuario is None
+
+
+def test_criar_usuario_existing_email(db_connection):
+    """Test duplicate user creation"""
+    criar_usuario(db_connection, "test@example.com", "password123")
+    usuario = criar_usuario(db_connection, "test@example.com", "password123")
+    assert usuario is None
+
+
+def test_login_no_user(db_connection):
+    """Test login for non existing user"""
+    criar_usuario(db_connection, "test@example.com", "password123")
+    assert not login(db_connection, "test2@example.com", "password123")
+
+
+def test_login_wrong_password(db_connection):
+    """Test login for non existing user"""
+    criar_usuario(db_connection, "test@example.com", "password123")
+    assert not login(db_connection, "test@example.com", "password")
+
+
+def test_login_success_no_otp(db_connection):
+    """Test login for non existing user"""
+    criar_usuario(db_connection, "test@example.com", "password123")
+    assert login(db_connection, "test@example.com", "password123")
+
+
+def test_gerar_codigos_reserva_no_user(db_connection, sample_user):
+    backup_codes = gerar_codigos_reserva(db_connection, "usuario@dominio.tld",
+                                         sample_user['password'])
+    assert backup_codes is None
+
+
+def test_gerar_codigos_reserva_wrong_password(db_connection, sample_user):
+    backup_codes = gerar_codigos_reserva(db_connection, sample_user['email'], "password")
+    assert backup_codes is None
+
+
+def test_gerar_codigos_reserva_no_otp(db_connection):
+    criar_usuario(db_connection, "test@example.com", "password123")
+    backup_codes = gerar_codigos_reserva(db_connection, "test@example.com", "password123")
+    assert backup_codes is None
 
 
 # Test group for OTP functionality
@@ -119,11 +161,11 @@ class TestSecurity:
 
         cursor = db_connection.cursor()
         cursor.execute("SELECT senha_hash FROM usuarios WHERE email = ?", (email,))
-        hash = cursor.fetchone()[0]
+        passwd_hash = cursor.fetchone()[0]
 
         # Verify hash is sufficiently long (pbkdf2 hash)
-        assert len(hash) > 50
+        assert len(passwd_hash) > 50
         # Verify hash is not plaintext
-        assert hash != password
+        assert passwd_hash != password
         # Verify hash starts with expected algorithm identifier
-        assert hash.startswith("scrypt:32768") or hash.startswith("pbkdf2:sha256")
+        assert passwd_hash.startswith("scrypt:32768") or passwd_hash.startswith("pbkdf2:sha256")

@@ -26,20 +26,17 @@ def verifica_token_jwt(text: str = None,
         if 'extra_data' in payload:
             claims.update({'extra_data': payload.get('extra_data')})
 
-    except jwt.ExpiredSignatureError as e:
+    except jwt.ExpiredSignatureError:
         claims.update({'reason': "expired"})
 
-    except jwt.ImmatureSignatureError as e:
+    except jwt.ImmatureSignatureError:
         claims.update({'reason': "immature"})
 
-    except jwt.InvalidSignatureError as e:
+    except jwt.InvalidSignatureError:
         claims.update({'reason': "invalid_signature"})
 
-    except jwt.InvalidTokenError as e:
+    except jwt.InvalidTokenError:
         claims.update({'reason': "invalid"})
-
-    except ValueError as e:
-        claims.update({'reason': "valueerror"})
 
     return claims
 
@@ -48,20 +45,18 @@ def criar_token_jwt(sub: Any,
                     sign_key: bytes = None,
                     action: str = None,
                     expires_in: int = 600,
+                    issued_at: int = None,
                     extra_data: Optional[Dict[str, str]] = None) -> Optional[str]:
     if sign_key is None or sub is None:
         return None  # Poderia gerar uma chave
 
-    agora = int(time())
-    try:
-        claims = {
-            'sub': str(sub),  # Assunto do token
-            'iat': agora,  # Quando foi emitido
-            'nbf': agora,  # Não é valido antes de
-            'exp': agora + expires_in,  # Não é valido depois de
-        }
-    except TypeError:
-        return None
+    iat = int(time()) if issued_at is None else int(issued_at)
+    claims = {
+        'sub': str(sub),  # Assunto do token
+        'iat': iat,  # Quando foi emitido
+        'nbf': iat,  # Não é valido antes de
+        'exp': iat + expires_in,  # Não é valido depois de
+    }
     if action is not None:
         claims.update({'action': action.lower()})
 

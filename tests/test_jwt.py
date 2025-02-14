@@ -1,4 +1,4 @@
-from time import sleep
+from time import sleep, time
 
 import jwt
 import pytest
@@ -104,6 +104,33 @@ def test_verifica_token_jwt_with_extra_data(sign_key):
 
 
 def test_verifica_token_jwt_action(sign_key):
+    action = 'LOGIN'
+    token = criar_token_jwt(sub='test_user', sign_key=sign_key, action=action)
+    claims = verifica_token_jwt(token, sign_key)
+    assert claims['valid'] is True
+    assert claims['action'] == action.lower()
+
+
+def test_verifica_token_jwt_invalid_signature(sign_key):
+    # Cria um token com uma chave diferente
+    wrong_key = b'wrong_key'
+    token = criar_token_jwt(sub='test_user', sign_key=wrong_key)
+    claims = verifica_token_jwt(token, sign_key)
+    assert claims['valid'] is False
+    assert claims['reason'] == 'invalid_signature'
+
+
+def test_verifica_token_jwt_immature(sign_key):
+    # Cria um token com uma data de emissão no futuro
+    future_time = int(time()) + 3600  # 1 hora no futuro
+    token = criar_token_jwt(sub='test_user', sign_key=sign_key, issued_at=future_time)
+    claims = verifica_token_jwt(token, sign_key)
+    assert claims['valid'] is False
+    assert claims['reason'] == 'immature'
+
+
+def test_verifica_token_jwt_action_case_sensitive(sign_key):
+    # Verifica se a ação é tratada como case-insensitive
     action = 'LOGIN'
     token = criar_token_jwt(sub='test_user', sign_key=sign_key, action=action)
     claims = verifica_token_jwt(token, sign_key)
